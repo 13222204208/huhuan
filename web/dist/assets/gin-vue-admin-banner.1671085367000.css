@@ -1,0 +1,4 @@
+/*! 
+ Build based on gin-vue-admin 
+ Time : 1671085367000 */
+.user-headpic-update{height:120px;line-height:120px;display:flex;justify-content:center;border-radius:20px}.user-headpic-update:hover{color:#fff;background:linear-gradient(to bottom,rgba(255,255,255,.15) 0%,rgba(0,0,0,.15) 100%),radial-gradient(at top center,rgba(255,255,255,.4) 0%,rgba(0,0,0,.4) 120%) #989898;background-blend-mode:multiply,multiply}.user-headpic-update:hover .update{color:#fff}.user-headpic-update .update{height:120px;width:220px;text-align:center;color:transparent}

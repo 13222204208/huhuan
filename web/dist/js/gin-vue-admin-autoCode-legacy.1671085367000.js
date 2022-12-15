@@ -1,0 +1,4 @@
+/*! 
+ Build based on gin-vue-admin 
+ Time : 1671085367000 */
+System.register(["../gva/gin-vue-admin-index-legacy.1671085367000.js"],(function(t){"use strict";var e;return{setters:[function(t){e=t.s}],execute:function(){t("p",(function(t){return e({url:"/autoCode/preview",method:"post",data:t})})),t("c",(function(t){return e({url:"/autoCode/createTemp",method:"post",data:t,responseType:"blob"})})),t("b",(function(){return e({url:"/autoCode/getDB",method:"get"})})),t("g",(function(t){return e({url:"/autoCode/getTables",method:"get",params:t})})),t("a",(function(t){return e({url:"/autoCode/getColumn",method:"get",params:t})})),t("e",(function(t){return e({url:"/autoCode/getSysHistory",method:"post",data:t})})),t("r",(function(t){return e({url:"/autoCode/rollback",method:"post",data:t})})),t("d",(function(t){return e({url:"/autoCode/getMeta",method:"post",data:t})})),t("f",(function(t){return e({url:"/autoCode/delSysHistory",method:"post",data:t})}))}}}));

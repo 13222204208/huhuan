@@ -1,0 +1,482 @@
+<template>
+  <div class="page">
+    <div class="gva-card-box">
+      <div class="gva-card gva-top-card">
+        <div class="gva-top-card-left">
+          <div class="gva-top-card-left-title">早安，管理员，请开始一天的工作吧</div>
+          <!-- <div class="gva-top-card-left-dot">今日晴，0℃ - 10℃，天气寒冷，注意添加衣物。</div> -->
+          <div class="gva-top-card-left-rows">
+            <el-row v-auth="888">
+              <el-col :span="8" :xs="24" :sm="8">
+                <div class="flex-center">
+                  <el-icon class="dasboard-icon">
+                    <sort />
+                  </el-icon>
+                  今日流量 ({{ tableData.active}})
+                </div>
+              </el-col>
+              <el-col :span="8" :xs="24" :sm="8">
+                <div class="flex-center" style="cursor: pointer;" @click="back">
+                  <el-icon class="dasboard-icon">
+                    <avatar />
+                  </el-icon>
+                  总用户数 ({{tableData.all}})
+                </div>
+              </el-col>
+<!--              <el-col :span="8" :xs="24" :sm="8">
+                <div class="flex-center">
+                  <el-icon class="dasboard-icon">
+                    <comment />
+                  </el-icon>
+                  好评率 (99%)
+                </div>
+              </el-col> -->
+            </el-row>
+          </div>
+          <!-- <div>
+            <div class="gva-top-card-left-item">
+              使用教学：
+              <a
+                style="color:#409EFF"
+                target="view_window"
+                href="https://www.bilibili.com/video/BV1Rg411u7xH/"
+              >https://www.bilibili.com/video/BV1Rg411u7xH</a>
+            </div>
+            <div class="gva-top-card-left-item">
+              插件仓库：
+              <a
+                style="color:#409EFF"
+                target="view_window"
+                href="https://github.com/flipped-aurora/gva-plugins"
+              >https://github.com/flipped-aurora/gva-plugins</a>
+            </div>
+          </div> -->
+        </div>
+        <img src="@/assets/dashboard.png" class="gva-top-card-right" alt>
+      </div>
+    </div>
+    <div class="gva-card-box">
+      <el-card class="gva-card quick-entrance">
+        <template #header>
+          <div class="card-header">
+            <span>快捷入口</span>
+          </div>
+        </template>
+        <el-row :gutter="20">
+          <el-col
+            v-for="(card, key) in toolCards"
+            :key="key"
+            :span="4"
+            :xs="8"
+            class="quick-entrance-items"
+            @click="toTarget(card.name)"
+          >
+            <div class="quick-entrance-item">
+              <div class="quick-entrance-item-icon" :style="{ backgroundColor: card.bg }">
+                <el-icon>
+                  <component :is="card.icon" :style="{ color: card.color }" />
+                </el-icon>
+              </div>
+              <p>{{ card.label }}</p>
+            </div>
+          </el-col>
+        </el-row>
+      </el-card>
+    <!-- <div class="quick-entrance-title"></div> -->
+    </div>
+    <div class="gva-card-box">
+      <div class="gva-card">
+        <div class="card-header">
+          <span>数据统计</span>
+        </div>
+        <div class="echart-box">
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="18">
+              <echarts-line />
+            </el-col>
+            <el-col :xs="24" :sm="6">
+              <dashboard-table />
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+	
+import{
+    getNewUserCountList
+}from '@/api/minappUser'
+
+
+import echartsLine from '@/view/dashboard/dashboardCharts/echartsLine.vue'
+import dashboardTable from '@/view/dashboard/dashboardTable/dashboardTable.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const activeName = ref('addUserInfo')
+const rangeDate = ref('')
+
+// 返回按钮
+const back = () => {
+    router.push({
+		name:'minappUser'
+	})
+}
+
+var myDate = new Date()
+    var time=(new Date).getTime()-7*24*60*60*1000;
+        var targetTime=new Date(time);
+        var month=targetTime.getMonth();
+        var day=targetTime.getDate();
+        targetTime=targetTime.getFullYear() + "-" + (targetTime.getMonth()> 9 ? (targetTime.getMonth() + 1) : "0" + (targetTime.getMonth() + 1)) + "-" +(targetTime.getDate()> 9 ? (targetTime.getDate()) : "0" + (targetTime.getDate()));
+
+    console.log("开始时间 ",targetTime)
+
+const searchInfo = ref({
+  start:targetTime,
+  end: dateFormat("YYYY-mm-dd",myDate),
+  way:""
+})
+
+const toUserDetail = (uid) => {
+  console.log("数据",uid)
+  router.push({
+    name: 'userDetail',
+    params: {
+      id: uid,
+    },
+  })
+}
+
+const toHelpOrder = (uid,name) =>{
+  router.push({
+    name:name,
+    params:{
+      id:uid
+    }
+  })
+}
+
+const onSubmit = () =>{
+ 
+  searchInfo.value.start = rangeDate.value[0]
+  searchInfo.value.end = rangeDate.value[1]
+  getUserCountData()
+}
+const shortcuts = [
+  {
+    text: '最近一周',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+      console.log("最近一个周",start,end)
+      return [start, end]
+    },
+  },
+  {
+    text: '最近一个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+      return [start, end]
+    },
+  },
+  {
+    text: '最近三个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+      return [start, end]
+    },
+  },
+]
+
+
+const handleClick = (tab, event) => {
+
+  searchInfo.value.way = activeName.value
+  getUserCountData()
+
+}
+const tableData = ref({})
+
+const getUserCountData = async() =>{
+
+    const res = await getNewUserCountList({...searchInfo.value})
+    if (res.code === 0){
+       tableData.value = res.data.data
+    }
+}
+getUserCountData()
+function dateFormat(fmt, date){
+    let ret;
+    const opt = {
+        "Y+": date.getFullYear().toString(),        // 年
+        "m+": (date.getMonth() + 1).toString(),     // 月
+        "d+": date.getDate().toString(),            // 日
+        "H+": date.getHours().toString(),           // 时
+        "M+": date.getMinutes().toString(),         // 分
+        "S+": date.getSeconds().toString()          // 秒
+        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+    };
+    for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+        };
+    };
+    return fmt;
+}
+
+const toolCards = ref([
+  {
+    label: '员工管理',
+    icon: 'monitor',
+    name: 'user',
+    color: '#ff9c6e',
+    bg: 'rgba(255, 156, 110,.3)'
+  },
+  {
+    label: '角色管理',
+    icon: 'setting',
+    name: 'authority',
+    color: '#69c0ff',
+    bg: 'rgba(105, 192, 255,.3)'
+  },
+    {
+    label: '小程序用户',
+    icon: 'avatar',
+    name: 'minappUser',
+    color: '#b37feb',
+    bg: 'rgba(179, 127, 235,.3)'
+  },
+    {
+    label: '小程序设置',
+    icon: 'setting',
+    name: 'minappSet',
+    color: '#ffd666',
+    bg: 'rgba(255, 214, 102,.3)'
+  },
+    {
+    label: '优惠券管理',
+    icon: 'setting',
+    name: 'coupon',
+    color: '#ff85c0',
+    bg: 'rgba(255, 133, 192,.3)'
+  },
+    {
+    label: '地区管理',
+    icon: 'setting',
+    name: 'area',
+    color: '#5cdbd3',
+    bg: 'rgba(92, 219, 211,.3)'
+  },
+  // {
+  //   label: '菜单管理',
+  //   icon: 'menu',
+  //   name: 'menu',
+  //   color: '#b37feb',
+  //   bg: 'rgba(179, 127, 235,.3)'
+  // },
+  // {
+  //   label: '代码生成器',
+  //   icon: 'cpu',
+  //   name: 'autoCode',
+  //   color: '#ffd666',
+  //   bg: 'rgba(255, 214, 102,.3)'
+  // },
+  // {
+  //   label: '表单生成器',
+  //   icon: 'document-checked',
+  //   name: 'formCreate',
+  //   color: '#ff85c0',
+  //   bg: 'rgba(255, 133, 192,.3)'
+  // },
+  // {
+  //   label: '关于我们',
+  //   icon: 'user',
+  //   name: 'about',
+  //   color: '#5cdbd3',
+  //   bg: 'rgba(92, 219, 211,.3)'
+  // }
+])
+
+
+const toTarget = (name) => {
+  router.push({ name })
+}
+
+</script>
+<script>
+export default {
+  name: 'Dashboard'
+}
+</script>
+
+
+
+
+
+<style lang="scss" scoped>
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+}
+.page {
+    background: #f0f2f5;
+    padding: 0;
+    .gva-card-box{
+      padding: 12px 16px;
+      &+.gva-card-box{
+        padding-top: 0px;
+      }
+    }
+    .gva-card {
+      box-sizing: border-box;
+        background-color: #fff;
+        border-radius: 2px;
+        height: auto;
+        padding: 26px 30px;
+        overflow: hidden;
+        box-shadow: 0 0 7px 1px rgba(0, 0, 0, 0.03);
+    }
+    .gva-top-card {
+        height: 260px;
+        @include flex-center;
+        justify-content: space-between;
+        color: #777;
+        &-left {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+            &-title {
+                font-size: 22px;
+                color: #343844;
+            }
+            &-dot {
+                font-size: 14px;
+                color: #6B7687;
+                margin-top: 24px;
+            }
+            &-rows {
+                // margin-top: 15px;
+                margin-top: 18px;
+                color: #6B7687;
+                width: 600px;
+                align-items: center;
+            }
+            &-item{
+              +.gva-top-card-left-item{
+                margin-top: 24px;
+              }
+              margin-top: 14px;
+            }
+        }
+        &-right {
+            height: 600px;
+            width: 600px;
+            margin-top: 28px;
+        }
+    }
+     ::v-deep(.el-card__header){
+          padding:0;
+          border-bottom: none;
+        }
+        .card-header{
+          padding-bottom: 20px;
+          border-bottom: 1px solid #e8e8e8;
+        }
+    .quick-entrance-title {
+        height: 30px;
+        font-size: 22px;
+        color: #333;
+        width: 100%;
+        border-bottom: 1px solid #eee;
+    }
+    .quick-entrance-items {
+        @include flex-center;
+        justify-content: center;
+        text-align: center;
+        color: #333;
+        .quick-entrance-item {
+          padding: 16px 28px;
+          margin-top: -16px;
+          margin-bottom: -16px;
+          border-radius: 4px;
+          transition: all 0.2s;
+          &:hover{
+            box-shadow: 0px 0px 7px 0px rgba(217, 217, 217, 0.55);
+          }
+            cursor: pointer;
+            height: auto;
+            text-align: center;
+            // align-items: center;
+            &-icon {
+                width: 50px;
+                height: 50px !important;
+                border-radius: 8px;
+                @include flex-center;
+                justify-content: center;
+                margin: 0 auto;
+                i {
+                    font-size: 24px;
+                }
+            }
+            p {
+                margin-top: 10px;
+            }
+        }
+    }
+    .echart-box{
+      padding: 14px;
+    }
+}
+.dasboard-icon {
+    font-size: 20px;
+    color: rgb(85, 160, 248);
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    @include flex-center;
+}
+.flex-center {
+    @include flex-center;
+}
+
+//小屏幕不显示右侧，将登陆框居中
+@media (max-width: 750px) {
+    .gva-card {
+        padding: 20px 10px !important;
+        .gva-top-card {
+            height: auto;
+            &-left {
+                &-title {
+                    font-size: 20px !important;
+                }
+                &-rows {
+                    margin-top: 15px;
+                    align-items: center;
+                }
+            }
+            &-right {
+                display: none;
+            }
+        }
+        .gva-middle-card {
+            &-item {
+                line-height: 20px;
+            }
+        }
+        .dasboard-icon {
+            font-size: 18px;
+        }
+    }
+}
+</style>

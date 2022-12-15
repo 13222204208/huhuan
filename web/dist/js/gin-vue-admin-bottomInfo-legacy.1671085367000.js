@@ -1,0 +1,4 @@
+/*! 
+ Build based on gin-vue-admin 
+ Time : 1671085367000 */
+System.register(["./gin-vue-admin-bottomInfo.vue_vue_type_style_index_0_lang-legacy.1671085367000.js","../gva/gin-vue-admin-index-legacy.1671085367000.js","./gin-vue-admin-vendor-legacy.1671085367000.js"],(function(e){"use strict";var n,i,t,a,r,u,o;return{setters:[function(){},function(e){n=e._},function(e){i=e.i,t=e.o,a=e.j,r=e.q,u=e.C,o=e.k}],execute:function(){var l={name:"BottomInfo"},d={class:"bottom-info"},s=r("span",null,"Powered by",-1),c={href:"https://github.com/flipped-aurora/gin-vue-admin"},p=r("span",null,"Copyright",-1),f=r("span",null,[r("a",{href:"https://github.com/flipped-aurora"},"flipped-aurora团队")],-1);e("default",n(l,[["render",function(e,n,l,v,g,m){var _=i("el-divider");return t(),a("div",d,[r("div",null,[s,r("span",null,[r("a",c,u(e.$GIN_VUE_ADMIN.appName),1)]),o(_,{direction:"vertical"}),p,f])])}]]))}}}));
